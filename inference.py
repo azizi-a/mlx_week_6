@@ -16,11 +16,13 @@ def load_model(model_path):
 
   # Load processor from the base model, not the fine-tuned path
   processor = AutoProcessor.from_pretrained("Qwen/Qwen2.5-VL-3B-Instruct")
+  processor.tokenizer.add_special_tokens({"pad_token": "<|pad|>"})
 
   # Load base model
   base_model = AutoModelForImageTextToText.from_pretrained(
     "Qwen/Qwen2.5-VL-3B-Instruct", device_map="auto", torch_dtype=torch.float16
   )
+  base_model.resize_token_embeddings(len(processor.tokenizer))
 
   # Load fine-tuned model
   model = PeftModel.from_pretrained(base_model, model_path)
